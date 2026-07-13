@@ -3,6 +3,8 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#include "ppport.h"
+
 #ifndef true
 	#include <stdbool.h>
 #endif
