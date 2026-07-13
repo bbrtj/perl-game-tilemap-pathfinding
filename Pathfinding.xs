@@ -3,6 +3,10 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#ifndef true
+	#include <stdbool.h>
+#endif
+
 typedef struct FIFO FIFO;
 
 struct FIFO {
@@ -176,7 +180,7 @@ SV* get_hash_key (HV* hash, const char* key, int len)
 
 MODULE = Game::TileMap::Pathfinding				PACKAGE = Game::TileMap::Pathfinding
 
-PROTOTYPES: DISABLE\n
+PROTOTYPES: DISABLE
 
 void
 _prepare(self)
@@ -207,7 +211,8 @@ _prepare(self)
 					croak("Calling check_can_be_accessed went wrong while preparing the pathfinding");
 				}
 
-				costs[i * size_y + j] = SvTRUE(POPs) ? 1 : -1;
+				SV *result = POPs;
+				costs[i * size_y + j] = SvTRUE(result) ? 1 : -1;
 			}
 		}
 
