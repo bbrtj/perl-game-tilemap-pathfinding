@@ -41,9 +41,9 @@ sub DESTROY
 
 sub find_path
 {
-	my ($self, $x1, $y1, $x2, $y2) = @_;
+	my $self = shift;
 
-	my $result = $self->_find_path($x1, $y1, $x2, $y2);
+	my $result = $self->_find_path(@_);
 	return undef unless defined $result;
 	return Game::TileMap::Pathfinding::Result->new($result);
 }
