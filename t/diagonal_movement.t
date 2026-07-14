@@ -15,17 +15,18 @@ $legend
 	->add_object(tests => '1' => 'first test')
 	->add_object(tests => '2' => 'second test')
 	->add_object(tests => '3' => 'third test')
+	->add_object(tests => '4' => 'fourth test')
 	;
 
 my $map_str = <<MAP;
 	_______3
 	_1______
 	________
-	__2_____
+	4_2_____
 	_##_____
 	_##___1_
-	2_______
-	3_______
+	2___####
+	3______4
 MAP
 
 my $map = Game::TileMap->new(
@@ -73,11 +74,31 @@ subtest 'should bypass obstacles smoothly on long paths' => sub {
 		5, 5,
 		5, 4,
 		4, 3,
-		4, 2,
+		3, 2,
 		3, 1,
 		2, 1,
 		1, 1,
 		0, 0,
+		],
+		'step list ok';
+};
+
+subtest 'should not get lost in a maze forcing orthogonal movements' => sub {
+	my $pf = Game::TileMap::Pathfinding->new(map => $map, diagonal_movement => !!1);
+	my $path = $pf->find_path(0, 4, 7, 0);
+
+	ok defined $path, 'path found ok';
+	is [@{$path}], [
+		0, 3,
+		0, 2,
+		0, 1,
+		1, 1,
+		2, 1,
+		3, 0,
+		4, 0,
+		5, 0,
+		6, 0,
+		7, 0,
 		],
 		'step list ok';
 };
