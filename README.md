@@ -1,5 +1,5 @@
 # Game::TileMap::Pathfinding
-A Perl module for blah blah blah
+A Perl module for finding paths on Game::TileMap.
 
 ## Code and documentation
 [Game::TileMap::Pathfinding on CPAN](https://metacpan.org/release/Game-TileMap-Pathfinding)
@@ -15,5 +15,4 @@ bigger so we can talk it through.
 
 ### Author
 Bartosz Jarzyna <bbrtj.pro@gmail.com>
-
 
