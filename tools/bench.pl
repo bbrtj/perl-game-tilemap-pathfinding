@@ -15,17 +15,17 @@ $legend
 
 my $map_str = <<MAP;
 	###############
-	#_____######_##
+	#_____######?##
 	#####_#_###____
 	##__________##_
-	##_#######?_##_
+	##_#######__##_
 	##_########_###
 	##_______##___#
 	########__###_#
 	______#######_#
 	_##____________
-	_##_?##########
-	_#______#____##
+	_##__##########
+	_#?_____#____##
 	#__####____####
 	#_#####_#######
 	#######______##
@@ -42,13 +42,13 @@ my $pf_d = Game::TileMap::Pathfinding->new(map => $map, diagonal_movement => !!1
 timethese 200.01, {
 	find_path_create => sub {
 		my $pf = Game::TileMap::Pathfinding->new(map => $map);
-		die unless defined $pf->find_path(4, 4, 10, 10);
+		die unless defined $pf->find_path(2, 3, 12, 13);
 	},
 	find_path => sub {
-		die unless defined $pf->find_path(4, 4, 10, 10);
+		die unless defined $pf->find_path(2, 3, 12, 13);
 	},
 	find_path_diagonal => sub {
-		die unless defined $pf_d->find_path(4, 4, 10, 10);
+		die unless defined $pf_d->find_path(2, 3, 12, 13);
 	},
 };
 
