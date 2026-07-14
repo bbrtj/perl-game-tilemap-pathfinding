@@ -95,7 +95,7 @@ AV* do_pathfinding (float *costs, int size_x, int size_y, int x1, int y1, int x2
 
 	while (next->count > 0) {
 		current = fifo_pop(next);
-		int current_value = visited[current];
+		float current_value = visited[current];
 		sides[0] = current % size_y == size_y - 1 ? size : current + 1;
 		sides[1] = current % size_y == 0 ? size : current - 1;
 		sides[2] = current + size_y;
@@ -143,7 +143,7 @@ AV* do_pathfinding (float *costs, int size_x, int size_y, int x1, int y1, int x2
 					croak("could not store pathfinding coordinates in an AV");
 				}
 
-				int min = visited[current];
+				float min = visited[current];
 				sides[0] = current % size_y == size_y - 1 ? size : current + 1;
 				sides[1] = current % size_y == 0 ? size : current - 1;
 				sides[2] = current + size_y;
