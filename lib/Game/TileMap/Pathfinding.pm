@@ -21,7 +21,6 @@ sub new
 
 	my $self = bless {
 		map => $map,
-		max_distance => $args{max_distance} // undef,
 		diagonal_movement => $args{diagonal_movement} // !!0,
 		_map_size_x => $map->size_x,
 		_map_size_y => $map->size_y,
@@ -98,10 +97,6 @@ C<%options> can be any of:
 This is a mandatory instance of a map. Location of inaccessible terrain should not
 change after creating a pathfinding instance - if it does, it's best to get rid
 of the pathfinding object and create a new one.
-
-=item * C<max_distance>
-
-Work in progress
 
 =item * C<diagonal_movement>
 
