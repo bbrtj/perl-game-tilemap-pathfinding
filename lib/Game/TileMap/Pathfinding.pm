@@ -77,9 +77,10 @@ This module is a fast Breadth-First Search pathfinding for Game::TileMap. For
 speed, the core algorithm is implemented in XS.
 
 Pathfinding instances can be reused indefinetly, but they don't actively track
-changes on a map. They also don't consider anything other than walls or voids
-as unreachable terrain. Moreover, all types of terrain have the exact same
-movement cost, though this may be changed in the future.
+changes on a map. They follow L<Game::TileMap/check_can_be_accessed> function
+to build a map of accessible terrain at object construction - building that map
+is much more expensive than pathfinding itself. Moreover, all types of terrain
+have the exact same movement cost, though this may be changed in the future.
 
 =head2 Interface
 
@@ -94,8 +95,8 @@ C<%options> can be any of:
 
 =item * C<map>
 
-This is a mandatory instance of a map. Location of walls and voids should not
-change after creating a pathfinding instance - if they do, it's best to get rid
+This is a mandatory instance of a map. Location of inaccessible terrain should not
+change after creating a pathfinding instance - if it does, it's best to get rid
 of the pathfinding object and create a new one.
 
 =item * C<max_distance>
