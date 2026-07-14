@@ -37,14 +37,18 @@ my $map = Game::TileMap->new(
 );
 
 my $pf = Game::TileMap::Pathfinding->new(map => $map);
+my $pf_d = Game::TileMap::Pathfinding->new(map => $map, diagonal_movement => !!1);
 
 timethese 200.01, {
-	find_path => sub {
+	find_path_create => sub {
 		my $pf = Game::TileMap::Pathfinding->new(map => $map);
 		die unless defined $pf->find_path(4, 4, 10, 10);
 	},
-	find_path_predeclared => sub {
+	find_path => sub {
 		die unless defined $pf->find_path(4, 4, 10, 10);
+	},
+	find_path_diagonal => sub {
+		die unless defined $pf_d->find_path(4, 4, 10, 10);
 	},
 };
 
