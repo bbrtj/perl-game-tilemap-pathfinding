@@ -3,7 +3,7 @@ use Game::TileMap::Pathfinding;
 use Game::TileMap;
 
 ################################################################################
-# This tests whether very basic paths are found
+# This tests whether interface works and very basic paths are found
 ################################################################################
 
 my $legend = Game::TileMap->new_legend;
