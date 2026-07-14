@@ -4,11 +4,14 @@
 
 #include "ppport.h"
 
+#include <math.h>
+
 #ifndef true
 	#include <stdbool.h>
 #endif
 
 typedef struct FIFO FIFO;
+typedef struct Visited Visited;
 
 struct FIFO {
 	int *buffer;
@@ -16,6 +19,11 @@ struct FIFO {
 	int tail;
 	int count;
 	int capacity;
+};
+
+struct Visited {
+	int last;
+	float value;
 };
 
 FIFO* fifo_create (int capacity)
@@ -57,18 +65,13 @@ int fifo_pop (FIFO *f)
 	return value;
 }
 
-bool find_path(int *costs, int *visited, int size, int size_y, int current, int end)
-{
-
-	return false;
-}
-
-AV* do_pathfinding (float *costs, int size_x, int size_y, int x1, int y1, int x2, int y2)
+AV* do_pathfinding (float *costs, int size_x, int size_y, int x1, int y1, int x2, int y2, bool diagonal)
 {
 	int size = size_x * size_y;
 	int start = x1 * size_y + y1;
 	int end = x2 * size_y + y2;
 	int i;
+	int i_bound = diagonal ? 8 : 4;
 
 	if (
 			x1 < 0 || y1 < 0 || x2 < 0 || y2 < 0
@@ -79,55 +82,69 @@ AV* do_pathfinding (float *costs, int size_x, int size_y, int x1, int y1, int x2
 	if (start == end)
 		return newAV();
 
-	float *visited = malloc(size * sizeof *visited);
+	Visited *visited = malloc(size * sizeof *visited);
 	for (i = 0; i < size; ++i) {
-		visited[i] = -1;
+		visited[i].value = -1;
 	}
 
 	FIFO *next = fifo_create((size_x + size_y) * 2);
 	AV *result = NULL;
 
 	fifo_push(next, start);
-	visited[start] = 0;
+	visited[start].value = 0;
 
 	int current;
-	int sides[4];
+	int sides[8];
 
 	while (next->count > 0) {
 		current = fifo_pop(next);
-		float current_value = visited[current];
+		float current_value = visited[current].value;
+
 		sides[0] = current % size_y == size_y - 1 ? size : current + 1;
 		sides[1] = current % size_y == 0 ? size : current - 1;
 		sides[2] = current + size_y;
 		sides[3] = current - size_y;
 
-		for (i = 0; i < 4; ++i) {
+		if (diagonal) {
+			sides[4] = current % size_y == size_y - 1 ? size : current + size_y + 1;
+			sides[5] = current % size_y == size_y - 1 ? size : current - size_y + 1;
+			sides[6] = current % size_y == 0 ? size : current + size_y - 1;
+			sides[7] = current % size_y == 0 ? size : current - size_y - 1;
+
+			/* do not allow moving diagonally when there's an obstacle nearby */
+			if (sides[0] != size && sides[2] < size && (costs[sides[0]] < 0 || costs[sides[2]] < 0))
+				sides[4] = size;
+			if (sides[0] != size && sides[3] >= 0 && (costs[sides[0]] < 0 || costs[sides[3]] < 0))
+				sides[5] = size;
+			if (sides[1] != size && sides[2] < size && (costs[sides[1]] < 0 || costs[sides[2]] < 0))
+				sides[6] = size;
+			if (sides[1] != size && sides[3] >= 0 && (costs[sides[1]] < 0 || costs[sides[3]] < 0))
+				sides[7] = size;
+		}
+
+		for (i = 0; i < i_bound; ++i) {
 			/* out of bounds */
 			if (sides[i] >= size || sides[i] < 0)
-				continue;
-
-			/* already visited */
-			if (visited[sides[i]] >= 0)
 				continue;
 
 			/* not reachable */
 			if (costs[sides[i]] < 0)
 				continue;
 
-			visited[sides[i]] = current_value + costs[sides[i]];
+			float new_cost = current_value + costs[sides[i]] * (i > 3 ? sqrt(2) : 1);
 
-			/* found destination */
-			if (sides[i] == end) {
-				break;
-			}
+			/* already visited earlier */
+			if (visited[sides[i]].value >= 0 && visited[sides[i]].value <= new_cost)
+				continue;
+
+			visited[sides[i]].value = new_cost;
+			visited[sides[i]].last = current;
 
 			fifo_push(next, sides[i]);
 		}
 
-		/* backtrack to find path */
-		/* TODO: find longest straight paths */
-		/* TODO: find safe diagonal paths */
-		if (visited[end] > 0) {
+		/* found destination, backtrack to find path */
+		if (visited[end].value > 0) {
 			result = newAV();
 			current = end;
 
@@ -143,22 +160,7 @@ AV* do_pathfinding (float *costs, int size_x, int size_y, int x1, int y1, int x2
 					croak("could not store pathfinding coordinates in an AV");
 				}
 
-				float min = visited[current];
-				sides[0] = current % size_y == size_y - 1 ? size : current + 1;
-				sides[1] = current % size_y == 0 ? size : current - 1;
-				sides[2] = current + size_y;
-				sides[3] = current - size_y;
-
-				for (i = 0; i < 4; ++i) {
-					/* out of bounds */
-					if (sides[i] >= size || sides[i] < 0)
-						continue;
-
-					if (visited[sides[i]] >= 0 && visited[sides[i]] < min) {
-						current = sides[i];
-						min = visited[current];
-					}
-				}
+				current = visited[current].last;
 			}
 
 			break;
@@ -232,10 +234,11 @@ _find_path(self, x1, y1, x2, y2)
 		HV *self_hash = (HV*) SvRV(self);
 		int size_x = SvIV(get_hash_key(self_hash, "_map_size_x", 11));
 		int size_y = SvIV(get_hash_key(self_hash, "_map_size_y", 11));
+		bool diagonal = SvTRUE(get_hash_key(self_hash, "diagonal_movement", 17));
 
 		float *costs = (float*) SvIV(get_hash_key(self_hash, "_map_data", 9));
 
-		AV *result = do_pathfinding(costs, size_x, size_y, x1, y1, x2, y2);
+		AV *result = do_pathfinding(costs, size_x, size_y, x1, y1, x2, y2, diagonal);
 		if (result != NULL)
 			RETVAL = newRV_inc((SV*) result);
 		else

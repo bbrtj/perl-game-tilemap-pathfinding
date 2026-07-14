@@ -32,12 +32,12 @@ subtest 'should have a working interface' => sub {
 	isa_ok $path, 'Game::TileMap::Pathfinding::Result';
 	is $path->step_count, 2, 'step count ok';
 	is [$path->steps], [
-		[1, 3],
+		[0, 2],
 		[1, 2],
 		],
 		'step list ok';
 
-	is [$path->next_step], [1, 3], 'next step (1) ok';
+	is [$path->next_step], [0, 2], 'next step (1) ok';
 	is [$path->next_step], [1, 2], 'next step (2) ok';
 };
 
@@ -78,11 +78,11 @@ subtest 'should find a path on the other side of the map' => sub {
 	ok defined $path, 'pathfinding result ok';
 	is $path->step_count, 6, 'step count ok';
 	is [$path->steps], [
-		[1, 0],
-		[2, 0],
-		[3, 0],
-		[3, 1],
-		[3, 2],
+		[0, 1],
+		[0, 2],
+		[0, 3],
+		[1, 3],
+		[2, 3],
 		[3, 3],
 		],
 		'step list ok';
@@ -95,11 +95,11 @@ subtest 'should find a path on the other side of the map (reverse direction)' =>
 	ok defined $path, 'pathfinding result ok';
 	is $path->step_count, 6, 'step count ok';
 	is [$path->steps], [
-		[2, 3],
-		[1, 3],
-		[0, 3],
-		[0, 2],
-		[0, 1],
+		[3, 2],
+		[3, 1],
+		[3, 0],
+		[2, 0],
+		[1, 0],
 		[0, 0],
 		],
 		'step list ok';

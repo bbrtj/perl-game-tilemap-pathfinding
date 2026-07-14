@@ -22,7 +22,7 @@ sub new
 	my $self = bless {
 		map => $map,
 		max_distance => $args{max_distance} // undef,
-		diagonal => $args{diagonal} // !!0,
+		diagonal_movement => $args{diagonal_movement} // !!0,
 		_map_size_x => $map->size_x,
 		_map_size_y => $map->size_y,
 	}, $class;
@@ -103,9 +103,24 @@ of the pathfinding object and create a new one.
 
 Work in progress
 
-=item * C<diagonal>
+=item * C<diagonal_movement>
 
-Work in progress
+This is an optional flag used for enabling finding paths by moving diagonally.
+If enabled, one path step is allowed to cause a change in both x and y at the
+same time.
+
+Moving like this is only possible if an obstacle is not touched by both tiles,
+for example, it's not possible to move from C<1> to C<2> in below examples,
+since it would require touching the wall (C<#>):
+
+	____  ____  ____
+	_1#_  _1__  _1#_
+	__2_  _#2_  _#2_
+	____  ____  ____
+
+Diagonal movement allows more natural paths in open environment - instead of
+moving across the border, a more centered path will be chosen. The cost of
+moving diagonally is multiplied by C<sqrt(2)> compared to moving orthogonally.
 
 =back
 
