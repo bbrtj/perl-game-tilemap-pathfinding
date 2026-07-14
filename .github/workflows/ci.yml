@@ -36,9 +36,9 @@ jobs:
         cpanm --notest Perl::Tidy Code::TidyAll
         tidyall -a --check-only
 
-    - name: Install Dist::Zilla
+    - name: Install global modules
       run: |
-        cpanm --notest Dist::Zilla
+        cpanm --notest Dist::Zilla Devel::PPPort
 
     - name: Install Modules
       run: |
